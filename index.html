@@ -232,29 +232,25 @@
       <div class="select-wrapper">
         <label for="country-select">Ülke:</label>
         <select id="country-select">
-          <optgroup label="Avrupa Ülkeleri">
-            <option value="DEU" selected>Almanya</option>
-            <option value="FRA">Fransa</option>
-            <option value="ITA">İtalya</option>
-            <option value="ESP">İspanya</option>
-            <option value="NLD">Hollanda</option>
-            <option value="GBR">Birleşik Krallık</option>
-            <option value="CHE">İsviçre</option>
-            <option value="SWE">İsveç</option>
-            <option value="POL">Polonya</option>
-            <option value="BEL">Belçika</option>
-            <option value="AUT">Avusturya</option>
-            <option value="NOR">Norveç</option>
-            <option value="IRL">İrlanda</option>
-            <option value="PRT">Portekiz</option>
-            <option value="GRC">Yunanistan</option>
-            <option value="DNK">Danimarka</option>
-            <option value="FIN">Finlandiya</option>
-          </optgroup>
-          <optgroup label="Diğer">
-            <option value="TUR">Türkiye</option>
-            <option value="USA">Amerika Birleşik Devletleri</option>
-          </optgroup>
+          <option value="DEU" selected>Almanya</option>
+          <option value="USA">Amerika Birleşik Devletleri</option>
+          <option value="AUT">Avusturya</option>
+          <option value="BEL">Belçika</option>
+          <option value="GBR">Birleşik Krallık</option>
+          <option value="DNK">Danimarka</option>
+          <option value="FIN">Finlandiya</option>
+          <option value="FRA">Fransa</option>
+          <option value="NLD">Hollanda</option>
+          <option value="IRL">İrlanda</option>
+          <option value="ESP">İspanya</option>
+          <option value="SWE">İsveç</option>
+          <option value="CHE">İsviçre</option>
+          <option value="ITA">İtalya</option>
+          <option value="NOR">Norveç</option>
+          <option value="POL">Polonya</option>
+          <option value="PRT">Portekiz</option>
+          <option value="TUR">Türkiye</option>
+          <option value="GRC">Yunanistan</option>
         </select>
         <span id="loading">Yükleniyor...</span>
       </div>
@@ -294,27 +290,27 @@
       { id: "income_tax", title: "Personal Income Tax Rate", tr: "Kişisel Gelir Vergisi Oranı", desc: "Bireylerin üst gelir diliminde devlete ödediği yasal gelir vergisi oranı.", unit: "%", source: "local" }
     ];
 
-    // API'de olmayan veya aylık/statik O.view serileri için Avrupa ülkeleri veri tabanı
+    // API'de olmayan veya aylık/statik O.view serileri için ülke veri tabanı
     const localData = {
       DEU: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [54.4, 49.8, 57.3, 47.1, 43.3, 43.0], services_pmi: [52.1, 49.5, 54.0, 49.2, 50.7, 51.6], biz_conf: [97.5, 92.1, 98.4, 88.6, 85.0, 85.4], consumer_conf: [-5.2, -15.4, -8.1, -25.6, -28.3, -21.2], retail_sales_mom: [0.2, -0.4, 0.5, -0.6, -0.3, 0.4], corp_tax: [29.9, 29.9, 29.9, 29.9, 29.9, 29.9], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      FRA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.7, 47.7, 55.6, 49.2, 45.7, 44.5], services_pmi: [52.6, 44.2, 55.4, 52.8, 48.4, 49.2], biz_conf: [105.0, 91.0, 109.0, 101.0, 98.0, 98.0], consumer_conf: [-11.0, -17.0, -12.0, -28.0, -18.0, -15.0], retail_sales_mom: [0.1, -0.5, 0.8, -0.2, 0.0, 0.1], corp_tax: [31.0, 28.0, 26.5, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      ITA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.7, 46.2, 62.0, 48.5, 44.4, 46.9], services_pmi: [50.4, 41.2, 53.0, 49.9, 49.8, 50.5], biz_conf: [99.0, 86.0, 106.0, 102.0, 96.0, 95.0], consumer_conf: [110.0, 102.0, 116.0, 98.0, 106.0, 96.2], retail_sales_mom: [-0.1, -0.8, 0.4, -0.3, -0.1, -0.2], corp_tax: [24.0, 24.0, 24.0, 24.0, 24.0, 24.0], income_tax: [43.0, 43.0, 43.0, 43.0, 43.0, 43.0] },
-      ESP: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [47.4, 48.0, 56.2, 46.4, 46.2, 53.0], services_pmi: [52.7, 39.8, 55.8, 51.6, 54.0, 54.9], biz_conf: [102.0, 84.0, 105.0, 100.0, 102.0, 104.2], consumer_conf: [90.0, 68.0, 85.0, 67.0, 78.0, 81.0], retail_sales_mom: [0.3, -1.2, 0.9, -0.1, 0.7, 0.6], corp_tax: [25.0, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 47.0, 47.0, 47.0, 47.0] },
-      NLD: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.5, 52.8, 63.4, 53.2, 46.1, 47.0], services_pmi: [54.0, 48.0, 57.0, 52.0, 51.5, 52.0], biz_conf: [5.2, -4.5, 10.2, 2.1, -2.5, -3.0], consumer_conf: [-2.0, -24.0, -14.0, -53.0, -38.0, -22.0], retail_sales_mom: [0.2, 0.1, 0.8, -0.4, 0.2, 0.3], corp_tax: [25.0, 25.0, 25.0, 25.8, 25.8, 25.8], income_tax: [51.7, 49.5, 49.5, 49.5, 49.5, 49.5] },
-      GBR: { interest_rate: [0.75, 0.1, 0.25, 3.5, 5.25, 5.0], mfg_pmi: [47.5, 50.2, 57.9, 45.3, 46.2, 50.3], services_pmi: [50.0, 49.4, 53.6, 49.9, 50.4, 52.4], biz_conf: [98.0, 89.0, 102.0, 94.0, 97.0, 99.0], consumer_conf: [-14.0, -26.0, -15.0, -42.0, -25.0, -21.0], retail_sales_mom: [0.1, -0.3, 0.5, -0.8, -0.1, 0.3], corp_tax: [19.0, 19.0, 19.0, 19.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      CHE: { interest_rate: [-0.75, -0.75, -0.75, 1.0, 1.75, 1.0], mfg_pmi: [49.2, 53.0, 62.7, 54.1, 44.9, 49.9], services_pmi: [51.0, 48.0, 54.0, 52.0, 50.5, 51.4], biz_conf: [100.0, 95.0, 108.0, 102.0, 97.0, 99.5], consumer_conf: [-9.0, -16.0, -6.0, -35.0, -30.0, -32.0], retail_sales_mom: [0.1, -0.2, 0.4, -0.3, 0.0, 0.2], corp_tax: [14.8, 14.8, 14.8, 14.8, 14.8, 14.8], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      SWE: { interest_rate: [-0.25, 0.0, 0.0, 2.5, 4.0, 3.25], mfg_pmi: [47.9, 57.0, 61.4, 45.9, 48.8, 51.3], services_pmi: [49.5, 54.0, 65.0, 51.0, 49.0, 53.0], biz_conf: [95.0, 88.0, 114.0, 97.0, 89.0, 94.0], consumer_conf: [93.0, 83.0, 103.0, 54.0, 71.0, 87.0], retail_sales_mom: [0.3, -0.6, 0.7, -0.5, 0.1, 0.5], corp_tax: [21.4, 21.4, 20.6, 20.6, 20.6, 20.6], income_tax: [57.1, 52.3, 52.3, 52.3, 52.3, 52.3] },
-      POL: { interest_rate: [1.5, 0.1, 1.75, 6.75, 5.75, 5.75], mfg_pmi: [48.0, 49.0, 56.1, 45.6, 47.4, 48.6], services_pmi: [51.0, 47.0, 53.0, 50.0, 50.5, 51.0], biz_conf: [98.0, 84.0, 102.0, 92.0, 95.0, 98.2], consumer_conf: [3.0, -25.0, -17.0, -44.0, -23.0, -14.5], retail_sales_mom: [0.5, -1.0, 1.2, -0.6, 0.4, -1.2], corp_tax: [19.0, 19.0, 19.0, 19.0, 19.0, 19.0], income_tax: [32.0, 32.0, 32.0, 32.0, 32.0, 32.0] },
-      BEL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.2, 49.5, 58.0, 48.5, 45.0, 46.2], services_pmi: [51.5, 46.0, 54.0, 51.0, 49.5, 50.1], biz_conf: [-3.0, -18.0, 4.0, -4.0, -12.0, -11.0], consumer_conf: [-5.0, -21.0, -4.0, -27.0, -10.0, -6.0], retail_sales_mom: [0.1, -0.4, 0.6, -0.3, 0.1, 0.1], corp_tax: [29.5, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [53.5, 53.5, 53.5, 53.5, 53.5, 53.5] },
+      USA: { interest_rate: [1.75, 0.25, 0.25, 4.5, 5.5, 4.75], mfg_pmi: [52.4, 57.1, 57.7, 48.4, 47.9, 48.5], services_pmi: [52.8, 54.8, 57.6, 44.7, 50.6, 55.3], biz_conf: [101.0, 99.0, 103.0, 97.0, 99.0, 100.5], consumer_conf: [128.0, 88.0, 115.0, 108.0, 102.0, 108.7], retail_sales_mom: [0.3, 0.6, 1.2, -0.4, 0.3, 0.4], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [37.0, 37.0, 37.0, 37.0, 37.0, 37.0] },
       AUT: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [46.0, 51.0, 60.0, 47.0, 42.0, 42.0], services_pmi: [52.0, 45.0, 53.0, 50.0, 48.5, 49.0], biz_conf: [2.0, -15.0, 12.0, -2.0, -10.0, -8.0], consumer_conf: [-4.0, -20.0, -7.0, -33.0, -22.0, -18.0], retail_sales_mom: [0.2, -0.5, 0.4, -0.2, 0.1, 0.2], corp_tax: [25.0, 25.0, 25.0, 24.0, 23.0, 23.0], income_tax: [55.0, 55.0, 55.0, 55.0, 55.0, 55.0] },
-      NOR: { interest_rate: [1.5, 0.0, 0.5, 2.75, 4.5, 4.5], mfg_pmi: [52.0, 50.5, 58.0, 51.0, 50.0, 52.4], services_pmi: [53.0, 49.0, 55.0, 52.0, 51.0, 53.2], biz_conf: [6.0, -8.0, 10.0, 4.0, 1.0, 3.2], consumer_conf: [8.0, -12.0, 2.0, -29.0, -24.0, -19.0], retail_sales_mom: [0.3, -0.2, 0.6, -0.4, 0.2, 0.4], corp_tax: [22.0, 22.0, 22.0, 22.0, 22.0, 22.0], income_tax: [38.4, 38.4, 38.4, 39.5, 39.6, 39.6] },
-      IRL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.0, 52.0, 60.0, 49.0, 49.0, 51.5], services_pmi: [55.0, 50.0, 60.0, 55.0, 54.0, 55.7], biz_conf: [104.0, 90.0, 112.0, 103.0, 100.0, 102.0], consumer_conf: [88.0, 72.0, 85.0, 52.0, 64.0, 74.0], retail_sales_mom: [0.4, -0.8, 1.0, -0.2, 0.3, 0.5], corp_tax: [12.5, 12.5, 12.5, 12.5, 15.0, 15.0], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      PRT: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [49.0, 46.0, 54.0, 48.0, 46.0, 48.0], services_pmi: [53.0, 42.0, 54.0, 52.0, 51.0, 53.0], biz_conf: [2.1, -10.2, 3.2, 1.5, 0.8, 1.8], consumer_conf: [-7.0, -25.0, -14.0, -32.0, -22.0, -16.0], retail_sales_mom: [0.2, -0.6, 0.7, -0.1, 0.2, 0.3], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [48.0, 48.0, 48.0, 48.0, 48.0, 48.0] },
-      GRC: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.9, 46.9, 59.0, 47.2, 51.8, 50.3], services_pmi: [54.0, 44.0, 55.0, 52.0, 52.0, 52.8], biz_conf: [105.0, 92.0, 110.0, 104.0, 107.0, 110.0], consumer_conf: [-40.0, -48.0, -42.0, -56.0, -50.0, -48.0], retail_sales_mom: [0.3, -0.9, 0.8, -0.3, 0.4, 0.4], corp_tax: [28.0, 24.0, 22.0, 22.0, 22.0, 22.0], income_tax: [44.0, 44.0, 44.0, 44.0, 44.0, 44.0] },
+      BEL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.2, 49.5, 58.0, 48.5, 45.0, 46.2], services_pmi: [51.5, 46.0, 54.0, 51.0, 49.5, 50.1], biz_conf: [-3.0, -18.0, 4.0, -4.0, -12.0, -11.0], consumer_conf: [-5.0, -21.0, -4.0, -27.0, -10.0, -6.0], retail_sales_mom: [0.1, -0.4, 0.6, -0.3, 0.1, 0.1], corp_tax: [29.5, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [53.5, 53.5, 53.5, 53.5, 53.5, 53.5] },
+      GBR: { interest_rate: [0.75, 0.1, 0.25, 3.5, 5.25, 5.0], mfg_pmi: [47.5, 50.2, 57.9, 45.3, 46.2, 50.3], services_pmi: [50.0, 49.4, 53.6, 49.9, 50.4, 52.4], biz_conf: [98.0, 89.0, 102.0, 94.0, 97.0, 99.0], consumer_conf: [-14.0, -26.0, -15.0, -42.0, -25.0, -21.0], retail_sales_mom: [0.1, -0.3, 0.5, -0.8, -0.1, 0.3], corp_tax: [19.0, 19.0, 19.0, 19.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
       DNK: { interest_rate: [-0.65, -0.6, -0.6, 1.75, 3.6, 3.1], mfg_pmi: [51.0, 52.0, 58.0, 50.0, 48.0, 50.5], services_pmi: [52.0, 47.0, 54.0, 51.0, 50.0, 51.2], biz_conf: [98.0, 88.0, 104.0, 96.0, 94.0, 97.0], consumer_conf: [3.0, -8.0, -3.0, -30.0, -15.0, -11.0], retail_sales_mom: [0.2, -0.3, 0.5, -0.2, 0.1, 0.3], corp_tax: [22.0, 22.0, 22.0, 22.0, 22.0, 22.0], income_tax: [55.9, 55.9, 55.9, 55.9, 55.9, 55.9] },
       FIN: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.0, 49.0, 56.0, 47.0, 45.0, 47.5], services_pmi: [51.0, 46.0, 53.0, 50.0, 49.0, 50.0], biz_conf: [-2.0, -18.0, 11.0, -5.0, -14.0, -10.0], consumer_conf: [-3.0, -10.0, 0.0, -20.0, -14.0, -9.0], retail_sales_mom: [0.1, -0.4, 0.3, -0.3, 0.0, 0.2], corp_tax: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0], income_tax: [56.9, 56.9, 56.9, 56.9, 56.9, 56.9] },
+      FRA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.7, 47.7, 55.6, 49.2, 45.7, 44.5], services_pmi: [52.6, 44.2, 55.4, 52.8, 48.4, 49.2], biz_conf: [105.0, 91.0, 109.0, 101.0, 98.0, 98.0], consumer_conf: [-11.0, -17.0, -12.0, -28.0, -18.0, -15.0], retail_sales_mom: [0.1, -0.5, 0.8, -0.2, 0.0, 0.1], corp_tax: [31.0, 28.0, 26.5, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
+      NLD: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.5, 52.8, 63.4, 53.2, 46.1, 47.0], services_pmi: [54.0, 48.0, 57.0, 52.0, 51.5, 52.0], biz_conf: [5.2, -4.5, 10.2, 2.1, -2.5, -3.0], consumer_conf: [-2.0, -24.0, -14.0, -53.0, -38.0, -22.0], retail_sales_mom: [0.2, 0.1, 0.8, -0.4, 0.2, 0.3], corp_tax: [25.0, 25.0, 25.0, 25.8, 25.8, 25.8], income_tax: [51.7, 49.5, 49.5, 49.5, 49.5, 49.5] },
+      IRL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.0, 52.0, 60.0, 49.0, 49.0, 51.5], services_pmi: [55.0, 50.0, 60.0, 55.0, 54.0, 55.7], biz_conf: [104.0, 90.0, 112.0, 103.0, 100.0, 102.0], consumer_conf: [88.0, 72.0, 85.0, 52.0, 64.0, 74.0], retail_sales_mom: [0.4, -0.8, 1.0, -0.2, 0.3, 0.5], corp_tax: [12.5, 12.5, 12.5, 12.5, 15.0, 15.0], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
+      ESP: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [47.4, 48.0, 56.2, 46.4, 46.2, 53.0], services_pmi: [52.7, 39.8, 55.8, 51.6, 54.0, 54.9], biz_conf: [102.0, 84.0, 105.0, 100.0, 102.0, 104.2], consumer_conf: [90.0, 68.0, 85.0, 67.0, 78.0, 81.0], retail_sales_mom: [0.3, -1.2, 0.9, -0.1, 0.7, 0.6], corp_tax: [25.0, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 47.0, 47.0, 47.0, 47.0] },
+      SWE: { interest_rate: [-0.25, 0.0, 0.0, 2.5, 4.0, 3.25], mfg_pmi: [47.9, 57.0, 61.4, 45.9, 48.8, 51.3], services_pmi: [49.5, 54.0, 65.0, 51.0, 49.0, 53.0], biz_conf: [95.0, 88.0, 114.0, 97.0, 89.0, 94.0], consumer_conf: [93.0, 83.0, 103.0, 54.0, 71.0, 87.0], retail_sales_mom: [0.3, -0.6, 0.7, -0.5, 0.1, 0.5], corp_tax: [21.4, 21.4, 20.6, 20.6, 20.6, 20.6], income_tax: [57.1, 52.3, 52.3, 52.3, 52.3, 52.3] },
+      CHE: { interest_rate: [-0.75, -0.75, -0.75, 1.0, 1.75, 1.0], mfg_pmi: [49.2, 53.0, 62.7, 54.1, 44.9, 49.9], services_pmi: [51.0, 48.0, 54.0, 52.0, 50.5, 51.4], biz_conf: [100.0, 95.0, 108.0, 102.0, 97.0, 99.5], consumer_conf: [-9.0, -16.0, -6.0, -35.0, -30.0, -32.0], retail_sales_mom: [0.1, -0.2, 0.4, -0.3, 0.0, 0.2], corp_tax: [14.8, 14.8, 14.8, 14.8, 14.8, 14.8], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
+      ITA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.7, 46.2, 62.0, 48.5, 44.4, 46.9], services_pmi: [50.4, 41.2, 53.0, 49.9, 49.8, 50.5], biz_conf: [99.0, 86.0, 106.0, 102.0, 96.0, 95.0], consumer_conf: [110.0, 102.0, 116.0, 98.0, 106.0, 96.2], retail_sales_mom: [-0.1, -0.8, 0.4, -0.3, -0.1, -0.2], corp_tax: [24.0, 24.0, 24.0, 24.0, 24.0, 24.0], income_tax: [43.0, 43.0, 43.0, 43.0, 43.0, 43.0] },
+      NOR: { interest_rate: [1.5, 0.0, 0.5, 2.75, 4.5, 4.5], mfg_pmi: [52.0, 50.5, 58.0, 51.0, 50.0, 52.4], services_pmi: [53.0, 49.0, 55.0, 52.0, 51.0, 53.2], biz_conf: [6.0, -8.0, 10.0, 4.0, 1.0, 3.2], consumer_conf: [8.0, -12.0, 2.0, -29.0, -24.0, -19.0], retail_sales_mom: [0.3, -0.2, 0.6, -0.4, 0.2, 0.4], corp_tax: [22.0, 22.0, 22.0, 22.0, 22.0, 22.0], income_tax: [38.4, 38.4, 38.4, 39.5, 39.6, 39.6] },
+      POL: { interest_rate: [1.5, 0.1, 1.75, 6.75, 5.75, 5.75], mfg_pmi: [48.0, 49.0, 56.1, 45.6, 47.4, 48.6], services_pmi: [51.0, 47.0, 53.0, 50.0, 50.5, 51.0], biz_conf: [98.0, 84.0, 102.0, 92.0, 95.0, 98.2], consumer_conf: [3.0, -25.0, -17.0, -44.0, -23.0, -14.5], retail_sales_mom: [0.5, -1.0, 1.2, -0.6, 0.4, -1.2], corp_tax: [19.0, 19.0, 19.0, 19.0, 19.0, 19.0], income_tax: [32.0, 32.0, 32.0, 32.0, 32.0, 32.0] },
+      PRT: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [49.0, 46.0, 54.0, 48.0, 46.0, 48.0], services_pmi: [53.0, 42.0, 54.0, 52.0, 51.0, 53.0], biz_conf: [2.1, -10.2, 3.2, 1.5, 0.8, 1.8], consumer_conf: [-7.0, -25.0, -14.0, -32.0, -22.0, -16.0], retail_sales_mom: [0.2, -0.6, 0.7, -0.1, 0.2, 0.3], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [48.0, 48.0, 48.0, 48.0, 48.0, 48.0] },
       TUR: { interest_rate: [12.0, 17.0, 14.0, 9.0, 42.5, 50.0], mfg_pmi: [49.5, 50.8, 52.1, 48.1, 47.4, 44.3], services_pmi: [51.0, 45.0, 52.0, 49.0, 48.0, 48.5], biz_conf: [103.0, 96.0, 110.0, 101.0, 103.0, 102.2], consumer_conf: [59.0, 80.0, 69.0, 75.0, 77.0, 80.6], retail_sales_mom: [0.8, -1.5, 2.1, 0.4, 1.2, 0.8], corp_tax: [22.0, 22.0, 25.0, 23.0, 25.0, 25.0], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      USA: { interest_rate: [1.75, 0.25, 0.25, 4.5, 5.5, 4.75], mfg_pmi: [52.4, 57.1, 57.7, 48.4, 47.9, 48.5], services_pmi: [52.8, 54.8, 57.6, 44.7, 50.6, 55.3], biz_conf: [101.0, 99.0, 103.0, 97.0, 99.0, 100.5], consumer_conf: [128.0, 88.0, 115.0, 108.0, 102.0, 108.7], retail_sales_mom: [0.3, 0.6, 1.2, -0.4, 0.3, 0.4], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [37.0, 37.0, 37.0, 37.0, 37.0, 37.0] }
+      GRC: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.9, 46.9, 59.0, 47.2, 51.8, 50.3], services_pmi: [54.0, 44.0, 55.0, 52.0, 52.0, 52.8], biz_conf: [105.0, 92.0, 110.0, 104.0, 107.0, 110.0], consumer_conf: [-40.0, -48.0, -42.0, -56.0, -50.0, -48.0], retail_sales_mom: [0.3, -0.9, 0.8, -0.3, 0.4, 0.4], corp_tax: [28.0, 24.0, 22.0, 22.0, 22.0, 22.0], income_tax: [44.0, 44.0, 44.0, 44.0, 44.0, 44.0] }
     };
 
     let selectedIndicator = indicators[0];
