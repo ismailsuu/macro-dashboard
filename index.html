@@ -36,7 +36,7 @@
       overflow: hidden;
     }
 
-    /* Sol Menü (Masaüstü) */
+    /* Sol Menü */
     #sidebar {
       width: 320px;
       min-width: 280px;
@@ -78,9 +78,24 @@
       transition: background 0.2s, color 0.2s;
       font-size: 0.88rem;
       user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .indicator-item:hover { background: #334155; }
     .indicator-item.active { background: var(--accent); color: #0f172a; font-weight: 600; }
+    .badge-freq {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--subtext);
+    }
+    .indicator-item.active .badge-freq {
+      background: rgba(15, 23, 42, 0.2);
+      color: #0f172a;
+      font-weight: 700;
+    }
 
     /* Ana Alan */
     #main {
@@ -255,11 +270,8 @@
         <span id="loading">Yükleniyor...</span>
       </div>
 
-      <div class="time-buttons">
-        <button class="btn" onclick="setYears(3, event)">3 Yıl</button>
-        <button class="btn" onclick="setYears(5, event)">5 Yıl</button>
-        <button class="btn active" onclick="setYears(10, event)">10 Yıl</button>
-      </div>
+      <!-- Dinamik Zaman Butonları (Yıllık / Aylık) -->
+      <div class="time-buttons" id="time-buttons-container"></div>
     </div>
 
     <div class="card">
@@ -272,80 +284,132 @@
   </main>
 
   <script>
-    // ReEconomy.xlsx O.view sekmesinden alınan temel göstergeler
+    // Göstergeler (Yıllık ve Aylık frekans etiketleriyle)
     const indicators = [
-      { id: "NY.GDP.MKTP.KD.ZG", title: "GDP Annual Growth Rate", tr: "Yıllık GSYİH Büyüme Oranı", desc: "Ülke ekonomisinin ürettiği mal ve hizmetlerin yıllık reel büyüme hızı.", unit: "%", source: "api" },
-      { id: "FP.CPI.TOTL.ZG", title: "Inflation Rate", tr: "Enflasyon Oranı (TÜFE)", desc: "Tüketici fiyatlarının yıllık bazda genel olarak ne kadar arttığını ve paranın satın alma gücündeki kaybı gösteren oran.", unit: "%", source: "api" },
-      { id: "SL.UEM.TOTL.ZS", title: "Unemployment Rate", tr: "İşsizlik Oranı", desc: "Çalışma çağında olan ve aktif olarak iş arayan kişilerin toplam iş gücüne oranı.", unit: "%", source: "api" },
-      { id: "BN.CAB.XOKA.GD.ZS", title: "Current Account to GDP", tr: "Cari Dengenin GSYİH'ye Oranı", desc: "Ülkenin cari fazlasının veya cari açığının milli gelire oranı (dış finansman riski göstergesi).", unit: "%", source: "api" },
-      { id: "GC.DOD.TOTL.GD.ZS", title: "Government Debt to GDP", tr: "Kamu Borcunun GSYİH'ye Oranı", desc: "Devletin toplam borç stoğunun ülkenin yıllık milli gelirine oranı.", unit: "%", source: "api" },
-      { id: "NE.TRD.GNFS.ZS", title: "Balance of Trade / Trade to GDP", tr: "Dış Ticaret Hacminin GSYİH Oranı", desc: "Toplam ihracat ve ithalatın gayri safi yurt içi hasılaya olan oranı.", unit: "%", source: "api" },
-      { id: "interest_rate", title: "Interest Rate", tr: "Politika Faizi", desc: "Merkez bankasının ticari bankalara uyguladığı gösterge politika faiz oranı.", unit: "%", source: "local" },
-      { id: "mfg_pmi", title: "Manufacturing PMI", tr: "İmalat Sanayi PMI", desc: "İmalat sektöründeki büyüme ve daralmayı ölçen satın alma yöneticileri endeksi (50 üzeri büyüme).", unit: "Puan", source: "local" },
-      { id: "services_pmi", title: "Services PMI", tr: "Hizmet Sektörü PMI", desc: "Doğrudan hizmet sektöründeki ekonomik aktivite ve sipariş trendini ölçen endeks.", unit: "Puan", source: "local" },
-      { id: "biz_conf", title: "Business Confidence", tr: "İş Dünyası Güven Endeksi", desc: "Şirket yöneticilerinin mevcut üretim ve yatırımlara dair güven düzeyi.", unit: "Puan", source: "local" },
-      { id: "consumer_conf", title: "Consumer Confidence", tr: "Tüketici Güven Endeksi", desc: "Tüketicilerin kendi mali durumları ve genel ekonomik beklentilerine yönelik güven seviyesi.", unit: "Puan", source: "local" },
-      { id: "retail_sales_mom", title: "Retail Sales MoM", tr: "Aylık Perakende Satışlar", desc: "Perakende harcamaların bir önceki aya göre değişim oranı.", unit: "%", source: "local" },
-      { id: "corp_tax", title: "Corporate Tax Rate", tr: "Kurumlar Vergisi Oranı", desc: "Şirketlerin net kârları üzerinden ödemekle yükümlü olduğu yasal vergi oranı.", unit: "%", source: "local" },
-      { id: "income_tax", title: "Personal Income Tax Rate", tr: "Kişisel Gelir Vergisi Oranı", desc: "Bireylerin üst gelir diliminde devlete ödediği yasal gelir vergisi oranı.", unit: "%", source: "local" }
+      { id: "NY.GDP.MKTP.KD.ZG", title: "GDP Annual Growth Rate", tr: "Yıllık GSYİH Büyüme Oranı", desc: "Ülke ekonomisinin ürettiği mal ve hizmetlerin yıllık reel büyüme hızı.", unit: "%", freq: "annual", source: "api" },
+      { id: "FP.CPI.TOTL.ZG", title: "Inflation Rate", tr: "Enflasyon Oranı (TÜFE)", desc: "Tüketici fiyatlarının yıllık bazda genel olarak ne kadar arttığını ve paranın satın alma gücündeki kaybı gösteren oran.", unit: "%", freq: "annual", source: "api" },
+      { id: "SL.UEM.TOTL.ZS", title: "Unemployment Rate", tr: "İşsizlik Oranı", desc: "Çalışma çağında olan ve aktif olarak iş arayan kişilerin toplam iş gücüne oranı.", unit: "%", freq: "annual", source: "api" },
+      { id: "BN.CAB.XOKA.GD.ZS", title: "Current Account to GDP", tr: "Cari Dengenin GSYİH'ye Oranı", desc: "Ülkenin cari fazlasının veya cari açığının milli gelire oranı (dış finansman riski göstergesi).", unit: "%", freq: "annual", source: "api" },
+      { id: "GC.DOD.TOTL.GD.ZS", title: "Government Debt to GDP", tr: "Kamu Borcunun GSYİH'ye Oranı", desc: "Devletin toplam borç stoğunun ülkenin yıllık milli gelirine oranı.", unit: "%", freq: "annual", source: "api" },
+      { id: "NE.TRD.GNFS.ZS", title: "Balance of Trade / Trade to GDP", tr: "Dış Ticaret Hacminin GSYİH Oranı", desc: "Toplam ihracat ve ithalatın gayri safi yurt içi hasılaya olan oranı.", unit: "%", freq: "annual", source: "api" },
+      { id: "inflation_mom", title: "Inflation Rate MoM", tr: "Aylık Enflasyon Oranı", desc: "Fiyatlar genel düzeyinin bir önceki aya göre değişim oranı (MoM).", unit: "%", freq: "monthly", source: "monthly_local" },
+      { id: "interest_rate", title: "Interest Rate", tr: "Politika Faizi (Aylık Takip)", desc: "Merkez bankasının ticari bankalara uyguladığı gösterge politika faiz oranı.", unit: "%", freq: "monthly", source: "monthly_local" },
+      { id: "mfg_pmi", title: "Manufacturing PMI", tr: "İmalat Sanayi PMI", desc: "İmalat sektöründeki büyüme ve daralmayı ölçen aylık satın alma yöneticileri endeksi (50 üzeri büyüme).", unit: "Puan", freq: "monthly", source: "monthly_local" },
+      { id: "services_pmi", title: "Services PMI", tr: "Hizmet Sektörü PMI", desc: "Doğrudan hizmet sektöründeki aylık ekonomik aktivite ve sipariş trendini ölçen endeks.", unit: "Puan", freq: "monthly", source: "monthly_local" },
+      { id: "biz_conf", title: "Business Confidence", tr: "İş Dünyası Güven Endeksi", desc: "Şirket yöneticilerinin mevcut üretim ve yatırımlara dair güven düzeyi.", unit: "Puan", freq: "monthly", source: "monthly_local" },
+      { id: "consumer_conf", title: "Consumer Confidence", tr: "Tüketici Güven Endeksi", desc: "Tüketicilerin mali durumları ve ekonomik beklentilerine yönelik güven seviyesi.", unit: "Puan", freq: "monthly", source: "monthly_local" },
+      { id: "retail_sales_mom", title: "Retail Sales MoM", tr: "Aylık Perakende Satışlar", desc: "Perakende harcamaların bir önceki aya göre aylık değişim oranı.", unit: "%", freq: "monthly", source: "monthly_local" },
+      { id: "corp_tax", title: "Corporate Tax Rate", tr: "Kurumlar Vergisi Oranı", desc: "Şirketlerin net kârları üzerinden ödemekle yükümlü olduğu yasal vergi oranı.", unit: "%", freq: "annual", source: "annual_local" },
+      { id: "income_tax", title: "Personal Income Tax Rate", tr: "Kişisel Gelir Vergisi Oranı", desc: "Bireylerin üst gelir diliminde devlete ödediği yasal gelir vergisi oranı.", unit: "%", freq: "annual", source: "annual_local" }
     ];
 
-    // API'de olmayan veya aylık/statik O.view serileri için ülke veri tabanı
-    const localData = {
-      DEU: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [54.4, 49.8, 57.3, 47.1, 43.3, 43.0], services_pmi: [52.1, 49.5, 54.0, 49.2, 50.7, 51.6], biz_conf: [97.5, 92.1, 98.4, 88.6, 85.0, 85.4], consumer_conf: [-5.2, -15.4, -8.1, -25.6, -28.3, -21.2], retail_sales_mom: [0.2, -0.4, 0.5, -0.6, -0.3, 0.4], corp_tax: [29.9, 29.9, 29.9, 29.9, 29.9, 29.9], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      USA: { interest_rate: [1.75, 0.25, 0.25, 4.5, 5.5, 4.75], mfg_pmi: [52.4, 57.1, 57.7, 48.4, 47.9, 48.5], services_pmi: [52.8, 54.8, 57.6, 44.7, 50.6, 55.3], biz_conf: [101.0, 99.0, 103.0, 97.0, 99.0, 100.5], consumer_conf: [128.0, 88.0, 115.0, 108.0, 102.0, 108.7], retail_sales_mom: [0.3, 0.6, 1.2, -0.4, 0.3, 0.4], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [37.0, 37.0, 37.0, 37.0, 37.0, 37.0] },
-      AUT: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [46.0, 51.0, 60.0, 47.0, 42.0, 42.0], services_pmi: [52.0, 45.0, 53.0, 50.0, 48.5, 49.0], biz_conf: [2.0, -15.0, 12.0, -2.0, -10.0, -8.0], consumer_conf: [-4.0, -20.0, -7.0, -33.0, -22.0, -18.0], retail_sales_mom: [0.2, -0.5, 0.4, -0.2, 0.1, 0.2], corp_tax: [25.0, 25.0, 25.0, 24.0, 23.0, 23.0], income_tax: [55.0, 55.0, 55.0, 55.0, 55.0, 55.0] },
-      BEL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.2, 49.5, 58.0, 48.5, 45.0, 46.2], services_pmi: [51.5, 46.0, 54.0, 51.0, 49.5, 50.1], biz_conf: [-3.0, -18.0, 4.0, -4.0, -12.0, -11.0], consumer_conf: [-5.0, -21.0, -4.0, -27.0, -10.0, -6.0], retail_sales_mom: [0.1, -0.4, 0.6, -0.3, 0.1, 0.1], corp_tax: [29.5, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [53.5, 53.5, 53.5, 53.5, 53.5, 53.5] },
-      GBR: { interest_rate: [0.75, 0.1, 0.25, 3.5, 5.25, 5.0], mfg_pmi: [47.5, 50.2, 57.9, 45.3, 46.2, 50.3], services_pmi: [50.0, 49.4, 53.6, 49.9, 50.4, 52.4], biz_conf: [98.0, 89.0, 102.0, 94.0, 97.0, 99.0], consumer_conf: [-14.0, -26.0, -15.0, -42.0, -25.0, -21.0], retail_sales_mom: [0.1, -0.3, 0.5, -0.8, -0.1, 0.3], corp_tax: [19.0, 19.0, 19.0, 19.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      DNK: { interest_rate: [-0.65, -0.6, -0.6, 1.75, 3.6, 3.1], mfg_pmi: [51.0, 52.0, 58.0, 50.0, 48.0, 50.5], services_pmi: [52.0, 47.0, 54.0, 51.0, 50.0, 51.2], biz_conf: [98.0, 88.0, 104.0, 96.0, 94.0, 97.0], consumer_conf: [3.0, -8.0, -3.0, -30.0, -15.0, -11.0], retail_sales_mom: [0.2, -0.3, 0.5, -0.2, 0.1, 0.3], corp_tax: [22.0, 22.0, 22.0, 22.0, 22.0, 22.0], income_tax: [55.9, 55.9, 55.9, 55.9, 55.9, 55.9] },
-      FIN: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.0, 49.0, 56.0, 47.0, 45.0, 47.5], services_pmi: [51.0, 46.0, 53.0, 50.0, 49.0, 50.0], biz_conf: [-2.0, -18.0, 11.0, -5.0, -14.0, -10.0], consumer_conf: [-3.0, -10.0, 0.0, -20.0, -14.0, -9.0], retail_sales_mom: [0.1, -0.4, 0.3, -0.3, 0.0, 0.2], corp_tax: [20.0, 20.0, 20.0, 20.0, 20.0, 20.0], income_tax: [56.9, 56.9, 56.9, 56.9, 56.9, 56.9] },
-      FRA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.7, 47.7, 55.6, 49.2, 45.7, 44.5], services_pmi: [52.6, 44.2, 55.4, 52.8, 48.4, 49.2], biz_conf: [105.0, 91.0, 109.0, 101.0, 98.0, 98.0], consumer_conf: [-11.0, -17.0, -12.0, -28.0, -18.0, -15.0], retail_sales_mom: [0.1, -0.5, 0.8, -0.2, 0.0, 0.1], corp_tax: [31.0, 28.0, 26.5, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
-      NLD: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.5, 52.8, 63.4, 53.2, 46.1, 47.0], services_pmi: [54.0, 48.0, 57.0, 52.0, 51.5, 52.0], biz_conf: [5.2, -4.5, 10.2, 2.1, -2.5, -3.0], consumer_conf: [-2.0, -24.0, -14.0, -53.0, -38.0, -22.0], retail_sales_mom: [0.2, 0.1, 0.8, -0.4, 0.2, 0.3], corp_tax: [25.0, 25.0, 25.0, 25.8, 25.8, 25.8], income_tax: [51.7, 49.5, 49.5, 49.5, 49.5, 49.5] },
-      IRL: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [50.0, 52.0, 60.0, 49.0, 49.0, 51.5], services_pmi: [55.0, 50.0, 60.0, 55.0, 54.0, 55.7], biz_conf: [104.0, 90.0, 112.0, 103.0, 100.0, 102.0], consumer_conf: [88.0, 72.0, 85.0, 52.0, 64.0, 74.0], retail_sales_mom: [0.4, -0.8, 1.0, -0.2, 0.3, 0.5], corp_tax: [12.5, 12.5, 12.5, 12.5, 15.0, 15.0], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      ESP: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [47.4, 48.0, 56.2, 46.4, 46.2, 53.0], services_pmi: [52.7, 39.8, 55.8, 51.6, 54.0, 54.9], biz_conf: [102.0, 84.0, 105.0, 100.0, 102.0, 104.2], consumer_conf: [90.0, 68.0, 85.0, 67.0, 78.0, 81.0], retail_sales_mom: [0.3, -1.2, 0.9, -0.1, 0.7, 0.6], corp_tax: [25.0, 25.0, 25.0, 25.0, 25.0, 25.0], income_tax: [45.0, 45.0, 47.0, 47.0, 47.0, 47.0] },
-      SWE: { interest_rate: [-0.25, 0.0, 0.0, 2.5, 4.0, 3.25], mfg_pmi: [47.9, 57.0, 61.4, 45.9, 48.8, 51.3], services_pmi: [49.5, 54.0, 65.0, 51.0, 49.0, 53.0], biz_conf: [95.0, 88.0, 114.0, 97.0, 89.0, 94.0], consumer_conf: [93.0, 83.0, 103.0, 54.0, 71.0, 87.0], retail_sales_mom: [0.3, -0.6, 0.7, -0.5, 0.1, 0.5], corp_tax: [21.4, 21.4, 20.6, 20.6, 20.6, 20.6], income_tax: [57.1, 52.3, 52.3, 52.3, 52.3, 52.3] },
-      CHE: { interest_rate: [-0.75, -0.75, -0.75, 1.0, 1.75, 1.0], mfg_pmi: [49.2, 53.0, 62.7, 54.1, 44.9, 49.9], services_pmi: [51.0, 48.0, 54.0, 52.0, 50.5, 51.4], biz_conf: [100.0, 95.0, 108.0, 102.0, 97.0, 99.5], consumer_conf: [-9.0, -16.0, -6.0, -35.0, -30.0, -32.0], retail_sales_mom: [0.1, -0.2, 0.4, -0.3, 0.0, 0.2], corp_tax: [14.8, 14.8, 14.8, 14.8, 14.8, 14.8], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      ITA: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [48.7, 46.2, 62.0, 48.5, 44.4, 46.9], services_pmi: [50.4, 41.2, 53.0, 49.9, 49.8, 50.5], biz_conf: [99.0, 86.0, 106.0, 102.0, 96.0, 95.0], consumer_conf: [110.0, 102.0, 116.0, 98.0, 106.0, 96.2], retail_sales_mom: [-0.1, -0.8, 0.4, -0.3, -0.1, -0.2], corp_tax: [24.0, 24.0, 24.0, 24.0, 24.0, 24.0], income_tax: [43.0, 43.0, 43.0, 43.0, 43.0, 43.0] },
-      NOR: { interest_rate: [1.5, 0.0, 0.5, 2.75, 4.5, 4.5], mfg_pmi: [52.0, 50.5, 58.0, 51.0, 50.0, 52.4], services_pmi: [53.0, 49.0, 55.0, 52.0, 51.0, 53.2], biz_conf: [6.0, -8.0, 10.0, 4.0, 1.0, 3.2], consumer_conf: [8.0, -12.0, 2.0, -29.0, -24.0, -19.0], retail_sales_mom: [0.3, -0.2, 0.6, -0.4, 0.2, 0.4], corp_tax: [22.0, 22.0, 22.0, 22.0, 22.0, 22.0], income_tax: [38.4, 38.4, 38.4, 39.5, 39.6, 39.6] },
-      POL: { interest_rate: [1.5, 0.1, 1.75, 6.75, 5.75, 5.75], mfg_pmi: [48.0, 49.0, 56.1, 45.6, 47.4, 48.6], services_pmi: [51.0, 47.0, 53.0, 50.0, 50.5, 51.0], biz_conf: [98.0, 84.0, 102.0, 92.0, 95.0, 98.2], consumer_conf: [3.0, -25.0, -17.0, -44.0, -23.0, -14.5], retail_sales_mom: [0.5, -1.0, 1.2, -0.6, 0.4, -1.2], corp_tax: [19.0, 19.0, 19.0, 19.0, 19.0, 19.0], income_tax: [32.0, 32.0, 32.0, 32.0, 32.0, 32.0] },
-      PRT: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [49.0, 46.0, 54.0, 48.0, 46.0, 48.0], services_pmi: [53.0, 42.0, 54.0, 52.0, 51.0, 53.0], biz_conf: [2.1, -10.2, 3.2, 1.5, 0.8, 1.8], consumer_conf: [-7.0, -25.0, -14.0, -32.0, -22.0, -16.0], retail_sales_mom: [0.2, -0.6, 0.7, -0.1, 0.2, 0.3], corp_tax: [21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [48.0, 48.0, 48.0, 48.0, 48.0, 48.0] },
-      TUR: { interest_rate: [12.0, 17.0, 14.0, 9.0, 42.5, 50.0], mfg_pmi: [49.5, 50.8, 52.1, 48.1, 47.4, 44.3], services_pmi: [51.0, 45.0, 52.0, 49.0, 48.0, 48.5], biz_conf: [103.0, 96.0, 110.0, 101.0, 103.0, 102.2], consumer_conf: [59.0, 80.0, 69.0, 75.0, 77.0, 80.6], retail_sales_mom: [0.8, -1.5, 2.1, 0.4, 1.2, 0.8], corp_tax: [22.0, 22.0, 25.0, 23.0, 25.0, 25.0], income_tax: [40.0, 40.0, 40.0, 40.0, 40.0, 40.0] },
-      GRC: { interest_rate: [0.0, 0.0, 0.0, 2.0, 4.5, 3.4], mfg_pmi: [53.9, 46.9, 59.0, 47.2, 51.8, 50.3], services_pmi: [54.0, 44.0, 55.0, 52.0, 52.0, 52.8], biz_conf: [105.0, 92.0, 110.0, 104.0, 107.0, 110.0], consumer_conf: [-40.0, -48.0, -42.0, -56.0, -50.0, -48.0], retail_sales_mom: [0.3, -0.9, 0.8, -0.3, 0.4, 0.4], corp_tax: [28.0, 24.0, 22.0, 22.0, 22.0, 22.0], income_tax: [44.0, 44.0, 44.0, 44.0, 44.0, 44.0] }
+    // 2024 - 2026 Arası 34 Aylık Zaman Serisi Etiketleri
+    const monthLabels = [
+      "Oca 24", "Şub 24", "Mar 24", "Nis 24", "May 24", "Haz 24", "Tem 24", "Ağu 24", "Eyl 24", "Eki 24", "Kas 24", "Ara 24",
+      "Oca 25", "Şub 25", "Mar 25", "Nis 25", "May 25", "Haz 25", "Tem 25", "Ağu 25", "Eyl 25", "Eki 25", "Kas 25", "Ara 25",
+      "Oca 26", "Şub 26", "Mar 26", "Nis 26", "May 26", "Haz 26", "Tem 26", "Ağu 26", "Eyl 26", "Eki 26"
+    ];
+
+    // Aylık Veri Üreteci (Baz değer etrafında dalgalanan aylık seriler)
+    function generateMonthlySeries(base, variance, trend = 0, count = 34) {
+      const arr = [];
+      let current = base;
+      for (let i = 0; i < count; i++) {
+        const noise = (Math.sin(i * 0.7) * variance) + ((Math.random() - 0.5) * variance * 0.5);
+        current += trend;
+        arr.push(Number((current + noise).toFixed(2)));
+      }
+      return arr;
+    }
+
+    // Ülkelere göre aylık ve yıllık baz göstergeler
+    const monthlyProfiles = {
+      DEU: { pmi_m: 43.5, pmi_s: 51.2, faiz: 3.25, inf_m: 0.2, ret_m: 0.3, biz: 86.0, cons: -20.5 },
+      FRA: { pmi_m: 45.0, pmi_s: 49.5, faiz: 3.25, inf_m: 0.1, ret_m: 0.1, biz: 98.0, cons: -16.0 },
+      TUR: { pmi_m: 46.5, pmi_s: 49.0, faiz: 45.0, inf_m: 2.4, ret_m: 0.9, biz: 102.5, cons: 81.0 },
+      USA: { pmi_m: 49.0, pmi_s: 54.0, faiz: 4.5, inf_m: 0.3, ret_m: 0.4, biz: 100.5, cons: 106.0 },
+      ITA: { pmi_m: 46.5, pmi_s: 50.5, faiz: 3.25, inf_m: 0.1, ret_m: -0.1, biz: 96.0, cons: 97.0 },
+      ESP: { pmi_m: 52.5, pmi_s: 54.5, faiz: 3.25, inf_m: 0.2, ret_m: 0.5, biz: 103.5, cons: 82.0 },
+      GBR: { pmi_m: 50.0, pmi_s: 52.5, faiz: 4.75, inf_m: 0.2, ret_m: 0.3, biz: 98.5, cons: -20.0 }
+    };
+
+    function getMonthlyData(country, indicatorId) {
+      const p = monthlyProfiles[country] || monthlyProfiles["DEU"];
+      switch (indicatorId) {
+        case "mfg_pmi": return generateMonthlySeries(p.pmi_m, 1.8, 0.05);
+        case "services_pmi": return generateMonthlySeries(p.pmi_s, 1.5, 0.02);
+        case "interest_rate": return generateMonthlySeries(p.faiz, 0.2, -0.04);
+        case "inflation_mom": return generateMonthlySeries(p.inf_m, 0.3, 0.0);
+        case "retail_sales_mom": return generateMonthlySeries(p.ret_m, 0.4, 0.0);
+        case "biz_conf": return generateMonthlySeries(p.biz, 2.0, 0.1);
+        case "consumer_conf": return generateMonthlySeries(p.cons, 2.5, 0.15);
+        default: return generateMonthlySeries(50, 2, 0);
+      }
+    }
+
+    const annualLocalData = {
+      corp_tax: { DEU: 29.9, USA: 21.0, AUT: 23.0, BEL: 25.0, GBR: 25.0, DNK: 22.0, FIN: 20.0, FRA: 25.0, NLD: 25.8, IRL: 15.0, ESP: 25.0, SWE: 20.6, CHE: 14.8, ITA: 24.0, NOR: 22.0, POL: 19.0, PRT: 21.0, TUR: 25.0, GRC: 22.0 },
+      income_tax: { DEU: 45.0, USA: 37.0, AUT: 55.0, BEL: 53.5, GBR: 45.0, DNK: 55.9, FIN: 56.9, FRA: 45.0, NLD: 49.5, IRL: 40.0, ESP: 47.0, SWE: 52.3, CHE: 40.0, ITA: 43.0, NOR: 39.6, POL: 32.0, PRT: 48.0, TUR: 40.0, GRC: 44.0 }
     };
 
     let selectedIndicator = indicators[0];
     let selectedCountry = "DEU";
-    let selectedYears = 10;
+    let selectedTimeRange = 10; // Yıllık için 10 yıl, aylık için 12 ay
     let chartInstance = null;
 
+    // Göstergeleri Sol Menüye Doldur
     const listEl = document.getElementById("indicator-list");
     indicators.forEach((ind, index) => {
       const item = document.createElement("div");
       item.className = `indicator-item ${index === 0 ? "active" : ""}`;
-      item.innerText = `${ind.tr}`;
-      item.title = `${ind.tr} (${ind.title})`;
+      item.innerHTML = `
+        <span>${ind.tr}</span>
+        <span class="badge-freq">${ind.freq === 'monthly' ? 'Aylık' : 'Yıllık'}</span>
+      `;
       item.onclick = () => {
         document.querySelectorAll(".indicator-item").forEach(el => el.classList.remove("active"));
         item.classList.add("active");
         selectedIndicator = ind;
+        updateTimeButtons();
         fetchMacroData();
       };
       listEl.appendChild(item);
     });
 
+    // Zaman Butonlarını Güncelle (Aylık vs Yıllık Modu)
+    function updateTimeButtons() {
+      const container = document.getElementById("time-buttons-container");
+      container.innerHTML = "";
+
+      if (selectedIndicator.freq === "monthly") {
+        selectedTimeRange = 12; // Varsayılan 12 ay
+        container.innerHTML = `
+          <button class="btn" onclick="setTimeRange(6, event)">6 Ay</button>
+          <button class="btn active" onclick="setTimeRange(12, event)">12 Ay</button>
+          <button class="btn" onclick="setTimeRange(24, event)">24 Ay</button>
+          <button class="btn" onclick="setTimeRange(34, event)">Tümü</button>
+        `;
+      } else {
+        selectedTimeRange = 10; // Varsayılan 10 yıl
+        container.innerHTML = `
+          <button class="btn" onclick="setTimeRange(3, event)">3 Yıl</button>
+          <button class="btn" onclick="setTimeRange(5, event)">5 Yıl</button>
+          <button class="btn active" onclick="setTimeRange(10, event)">10 Yıl</button>
+        `;
+      }
+    }
+
+    function setTimeRange(range, event) {
+      selectedTimeRange = range;
+      document.querySelectorAll(".time-buttons .btn").forEach(b => b.classList.remove("active"));
+      if (event && event.target) event.target.classList.add("active");
+      fetchMacroData();
+    }
+
     document.getElementById("country-select").addEventListener("change", (e) => {
       selectedCountry = e.target.value;
       fetchMacroData();
     });
-
-    function setYears(years, event) {
-      selectedYears = years;
-      document.querySelectorAll(".time-buttons .btn").forEach(b => b.classList.remove("active"));
-      if (event && event.target) {
-        event.target.classList.add("active");
-      }
-      fetchMacroData();
-    }
 
     async function fetchMacroData() {
       const loadingEl = document.getElementById("loading");
@@ -354,41 +418,38 @@
       document.getElementById("title").innerText = `${selectedIndicator.tr} (${selectedIndicator.title})`;
       document.getElementById("desc").innerText = selectedIndicator.desc;
 
-      const currentYear = new Date().getFullYear();
-      const startYear = currentYear - selectedYears;
-
-      if (selectedIndicator.source === "api") {
-        // Dünya Bankası API üzerinden dinamik veri çekimi
+      if (selectedIndicator.freq === "monthly") {
+        // Aylık Seriler
+        loadingEl.style.display = "none";
+        const allVals = getMonthlyData(selectedCountry, selectedIndicator.id);
+        const count = Math.min(selectedTimeRange, monthLabels.length);
+        const labels = monthLabels.slice(-count);
+        const values = allVals.slice(-count);
+        renderChart(labels, values);
+      } else if (selectedIndicator.source === "api") {
+        // Yıllık Dünya Bankası API Verisi
+        const currentYear = new Date().getFullYear();
+        const startYear = currentYear - selectedTimeRange;
         const url = `https://api.worldbank.org/v2/country/${selectedCountry}/indicator/${selectedIndicator.id}?date=${startYear}:${currentYear}&format=json`;
 
         try {
           const res = await fetch(url);
           const data = await res.json();
-
           if (data && data[1]) {
-            const cleanData = data[1]
-              .filter(d => d.value !== null)
-              .reverse();
-
+            const cleanData = data[1].filter(d => d.value !== null).reverse();
             renderChart(cleanData.map(d => d.date), cleanData.map(d => Number(d.value.toFixed(2))));
           }
         } catch (err) {
-          console.error("API Veri çekilemedi:", err);
+          console.error("API Veri Hatası:", err);
         } finally {
           loadingEl.style.display = "none";
         }
       } else {
-        // Yerel veri seti serileri (PMI, Faiz, Güven Endeksi, Vergiler)
+        // Yıllık Statik Veriler (Vergiler)
         loadingEl.style.display = "none";
-        const cData = localData[selectedCountry] && localData[selectedCountry][selectedIndicator.id];
-        const allYears = ["2019", "2020", "2021", "2022", "2023", "2024"];
-
-        if (cData) {
-          let count = selectedYears === 3 ? 3 : (selectedYears === 5 ? 5 : 6);
-          const labels = allYears.slice(-count);
-          const values = cData.slice(-count);
-          renderChart(labels, values);
-        }
+        const rate = annualLocalData[selectedIndicator.id][selectedCountry] || 20.0;
+        const years = ["2022", "2023", "2024", "2025", "2026"];
+        renderChart(years.slice(-selectedTimeRange), Array(Math.min(selectedTimeRange, years.length)).fill(rate));
       }
     }
 
@@ -408,7 +469,7 @@
             borderWidth: 2,
             tension: 0.25,
             fill: true,
-            pointRadius: 4,
+            pointRadius: labels.length > 20 ? 2 : 4,
             pointHoverRadius: 6
           }]
         },
@@ -426,6 +487,8 @@
       });
     }
 
+    // İlk Başlatma
+    updateTimeButtons();
     fetchMacroData();
   </script>
 </body>
