@@ -112,12 +112,22 @@
       font-size: 0.9rem;
       outline: none;
     }
+    .actions-right {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+      align-items: center;
+    }
     .time-buttons {
       display: flex;
       gap: 6px;
-      margin-left: auto;
     }
     .btn.active { background: var(--accent); color: #0f172a; font-weight: 600; }
+    .lang-btn {
+      font-weight: 600;
+      color: var(--accent);
+      border-color: var(--accent);
+    }
 
     /* Gösterge Kartı ve Grafik */
     .card {
@@ -194,9 +204,13 @@
       .select-wrapper select {
         flex: 1;
       }
-      .time-buttons {
+      .actions-right {
         margin-left: 0;
         width: 100%;
+        flex-direction: row;
+      }
+      .time-buttons {
+        flex: 1;
       }
       .time-buttons .btn {
         flex: 1;
@@ -221,7 +235,7 @@
   <aside id="sidebar">
     <div class="brand-header">
       <img src="image.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
-      <h2 class="brand-title">Makro Göstergeler</h2>
+      <h2 class="brand-title" id="txt-brand">Makro Göstergeler</h2>
     </div>
     <div id="indicator-list"></div>
   </aside>
@@ -230,41 +244,18 @@
   <main id="main">
     <div class="controls">
       <div class="select-wrapper">
-        <label for="country-select">Ülke:</label>
-        <select id="country-select">
-          <option value="DEU" selected>Almanya</option>
-          <option value="USA">Amerika Birleşik Devletleri</option>
-          <option value="AUT">Avusturya</option>
-          <option value="BEL">Belçika</option>
-          <option value="GBR">Birleşik Krallık</option>
-          <option value="CHN">Çin</option>
-          <option value="DNK">Danimarka</option>
-          <option value="FIN">Finlandiya</option>
-          <option value="FRA">Fransa</option>
-          <option value="IND">Hindistan</option>
-          <option value="NLD">Hollanda</option>
-          <option value="IRL">İrlanda</option>
-          <option value="ESP">İspanya</option>
-          <option value="SWE">İsveç</option>
-          <option value="CHE">İsviçre</option>
-          <option value="ITA">İtalya</option>
-          <option value="HUN">Macaristan</option>
-          <option value="NOR">Norveç</option>
-          <option value="PAK">Pakistan</option>
-          <option value="POL">Polonya</option>
-          <option value="PRT">Portekiz</option>
-          <option value="RUS">Rusya</option>
-          <option value="SVN">Slovenya</option>
-          <option value="TUR">Türkiye</option>
-          <option value="GRC">Yunanistan</option>
-        </select>
+        <label for="country-select" id="lbl-country">Ülke:</label>
+        <select id="country-select"></select>
         <span id="loading">Yükleniyor...</span>
       </div>
 
-      <div class="time-buttons">
-        <button class="btn" onclick="setYears(3, event)">3 Yıl</button>
-        <button class="btn" onclick="setYears(5, event)">5 Yıl</button>
-        <button class="btn active" onclick="setYears(10, event)">10 Yıl</button>
+      <div class="actions-right">
+        <div class="time-buttons">
+          <button class="btn" id="btn-3y" onclick="setYears(3, event)">3 Yıl</button>
+          <button class="btn" id="btn-5y" onclick="setYears(5, event)">5 Yıl</button>
+          <button class="btn active" id="btn-10y" onclick="setYears(10, event)">10 Yıl</button>
+        </div>
+        <button class="btn lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">EN</button>
       </div>
     </div>
 
@@ -278,28 +269,190 @@
   </main>
 
   <script>
-    // ReEconomy.xlsx O.view sekmesinden göstergeler
-    const indicators = [
-      { id: "NY.GDP.MKTP.KD.ZG", title: "GDP Annual Growth Rate", tr: "Yıllık GSYİH Büyüme Oranı", desc: "Ülke ekonomisinin ürettiği mal ve hizmetlerin yıllık reel büyüme hızı.", unit: "%", source: "api" },
-      { id: "FP.CPI.TOTL.ZG", title: "Inflation Rate", tr: "Enflasyon Oranı (TÜFE)", desc: "Tüketici fiyatlarının yıllık bazda genel olarak ne kadar arttığını ve paranın satın alma gücündeki kaybı gösteren oran.", unit: "%", source: "api" },
-      { id: "SL.UEM.TOTL.ZS", title: "Unemployment Rate", tr: "İşsizlik Oranı", desc: "Çalışma çağında olan ve aktif olarak iş arayan kişilerin toplam iş gücüne oranı.", unit: "%", source: "api" },
-      { id: "BN.CAB.XOKA.GD.ZS", title: "Current Account to GDP", tr: "Cari Dengenin GSYİH'ye Oranı", desc: "Ülkenin cari fazlasının veya cari açığının milli gelire oranı (dış finansman riski göstergesi).", unit: "%", source: "api" },
-      { id: "GC.DOD.TOTL.GD.ZS", title: "Government Debt to GDP", tr: "Kamu Borcunun GSYİH'ye Oranı", desc: "Devletin toplam borç stoğunun ülkenin yıllık milli gelirine oranı.", unit: "%", source: "api" },
-      { id: "NE.TRD.GNFS.ZS", title: "Balance of Trade / Trade to GDP", tr: "Dış Ticaret Hacminin GSYİH Oranı", desc: "Toplam ihracat ve ithalatın gayri safi yurt içi hasılaya olan oranı.", unit: "%", source: "api" },
-      { id: "interest_rate", title: "Interest Rate", tr: "Politika Faizi", desc: "Merkez bankasının ticari bankalara uyguladığı gösterge politika faiz oranı.", unit: "%", source: "local" },
-      { id: "mfg_pmi", title: "Manufacturing PMI", tr: "İmalat Sanayi PMI", desc: "İmalat sektöründeki büyüme ve daralmayı ölçen satın alma yöneticileri endeksi (50 üzeri büyüme).", unit: "Puan", source: "local" },
-      { id: "services_pmi", title: "Services PMI", tr: "Hizmet Sektörü PMI", desc: "Doğrudan hizmet sektöründeki ekonomik aktivite ve sipariş trendini ölçen endeks.", unit: "Puan", source: "local" },
-      { id: "biz_conf", title: "Business Confidence", tr: "İş Dünyası Güven Endeksi", desc: "Şirket yöneticilerinin mevcut üretim ve yatırımlara dair güven düzeyi.", unit: "Puan", source: "local" },
-      { id: "consumer_conf", title: "Consumer Confidence", tr: "Tüketici Güven Endeksi", desc: "Tüketicilerin kendi mali durumları ve genel ekonomik beklentilerine yönelik güven seviyesi.", unit: "Puan", source: "local" },
-      { id: "retail_sales_mom", title: "Retail Sales MoM", tr: "Aylık Perakende Satışlar Değişimi", desc: "Perakende harcamaların dönemsel ortalama değişim eğilimi.", unit: "%", source: "local" },
-      { id: "corp_tax", title: "Corporate Tax Rate", tr: "Kurumlar Vergisi Oranı", desc: "Şirketlerin net kârları üzerinden ödemekle yükümlü olduğu yasal vergi oranı.", unit: "%", source: "local" },
-      { id: "income_tax", title: "Personal Income Tax Rate", tr: "Kişisel Gelir Vergisi Oranı", desc: "Bireylerin üst gelir diliminde devlete ödediği yasal gelir vergisi oranı.", unit: "%", source: "local" }
+    let currentLang = localStorage.getItem("re_economy_lang") || "tr";
+
+    const translations = {
+      tr: {
+        brand: "Makro Göstergeler",
+        country: "Ülke:",
+        loading: "Yükleniyor...",
+        y3: "3 Yıl",
+        y5: "5 Yıl",
+        y10: "10 Yıl",
+        toggleText: "EN",
+        unitText: "Birim"
+      },
+      en: {
+        brand: "Macro Indicators",
+        country: "Country:",
+        loading: "Loading...",
+        y3: "3 Years",
+        y5: "5 Years",
+        y10: "10 Years",
+        toggleText: "TR",
+        unitText: "Unit"
+      }
+    };
+
+    const countriesData = [
+      { code: "DEU", tr: "Almanya", en: "Germany" },
+      { code: "USA", tr: "Amerika Birleşik Devletleri", en: "United States" },
+      { code: "AUT", tr: "Avusturya", en: "Austria" },
+      { code: "BEL", tr: "Belçika", en: "Belgium" },
+      { code: "GBR", tr: "Birleşik Krallık", en: "United Kingdom" },
+      { code: "CHN", tr: "Çin", en: "China" },
+      { code: "DNK", tr: "Danimarka", en: "Denmark" },
+      { code: "FIN", tr: "Finlandiya", en: "Finland" },
+      { code: "FRA", tr: "Fransa", en: "France" },
+      { code: "IND", tr: "Hindistan", en: "India" },
+      { code: "NLD", tr: "Hollanda", en: "Netherlands" },
+      { code: "IRL", tr: "İrlanda", en: "Ireland" },
+      { code: "ESP", tr: "İspanya", en: "Spain" },
+      { code: "SWE", tr: "İsveç", en: "Sweden" },
+      { code: "CHE", tr: "İsviçre", en: "Switzerland" },
+      { code: "ITA", tr: "İtalya", en: "Italy" },
+      { code: "HUN", tr: "Macaristan", en: "Hungary" },
+      { code: "NOR", tr: "Norveç", en: "Norway" },
+      { code: "PAK", tr: "Pakistan", en: "Pakistan" },
+      { code: "POL", tr: "Polonya", en: "Poland" },
+      { code: "PRT", tr: "Portekiz", en: "Portugal" },
+      { code: "RUS", tr: "Rusya", en: "Russia" },
+      { code: "SVN", tr: "Slovenya", en: "Slovenia" },
+      { code: "TUR", tr: "Türkiye", en: "Turkey" },
+      { code: "GRC", tr: "Yunanistan", en: "Greece" }
     ];
 
-    // 2017 - 2026 Yıllık Zaman Serisi
+    const indicators = [
+      { 
+        id: "NY.GDP.MKTP.KD.ZG", 
+        titleTr: "Yıllık GSYİH Büyüme Oranı", 
+        titleEn: "GDP Annual Growth Rate", 
+        descTr: "Ülke ekonomisinin ürettiği mal ve hizmetlerin yıllık reel büyüme hızı.", 
+        descEn: "Annual percentage growth rate of GDP at market prices based on constant local currency.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "FP.CPI.TOTL.ZG", 
+        titleTr: "Enflasyon Oranı (TÜFE)", 
+        titleEn: "Inflation Rate (CPI)", 
+        descTr: "Tüketici fiyatlarının yıllık bazda genel olarak ne kadar arttığını ve paranın satın alma gücündeki kaybı gösteren oran.", 
+        descEn: "Inflation as measured by the consumer price index reflects the annual percentage change in the cost to the average consumer.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "SL.UEM.TOTL.ZS", 
+        titleTr: "İşsizlik Oranı", 
+        titleEn: "Unemployment Rate", 
+        descTr: "Çalışma çağında olan ve aktif olarak iş arayan kişilerin toplam iş gücüne oranı.", 
+        descEn: "Unemployment refers to the share of the labor force that is without work but available for and seeking employment.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "BN.CAB.XOKA.GD.ZS", 
+        titleTr: "Cari Dengenin GSYİH'ye Oranı", 
+        titleEn: "Current Account to GDP", 
+        descTr: "Ülkenin cari fazlasının veya cari açığının milli gelire oranı (dış finansman riski göstergesi).", 
+        descEn: "Current account balance as a percentage of GDP, indicating external vulnerability or strength.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "GC.DOD.TOTL.GD.ZS", 
+        titleTr: "Kamu Borcunun GSYİH'ye Oranı", 
+        titleEn: "Government Debt to GDP", 
+        descTr: "Devletin toplam borç stoğunun ülkenin yıllık milli gelirine oranı.", 
+        descEn: "Total central government debt stock measured as a percentage of annual GDP.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "NE.TRD.GNFS.ZS", 
+        titleTr: "Dış Ticaret Hacminin GSYİH Oranı", 
+        titleEn: "Trade to GDP Ratio", 
+        descTr: "Toplam ihracat ve ithalatın gayri safi yurt içi hasılaya olan oranı.", 
+        descEn: "Trade is the sum of exports and imports of goods and services measured as a share of GDP.",
+        unit: "%", 
+        source: "api" 
+      },
+      { 
+        id: "interest_rate", 
+        titleTr: "Politika Faizi", 
+        titleEn: "Central Bank Interest Rate", 
+        descTr: "Merkez bankasının ticari bankalara uyguladığı gösterge politika faiz oranı.", 
+        descEn: "Key monetary policy interest rate set by the country's central bank.",
+        unit: "%", 
+        source: "local" 
+      },
+      { 
+        id: "mfg_pmi", 
+        titleTr: "İmalat Sanayi PMI", 
+        titleEn: "Manufacturing PMI", 
+        descTr: "İmalat sektöründeki büyüme ve daralmayı ölçen satın alma yöneticileri endeksi (50 üzeri büyüme).", 
+        descEn: "Purchasing Managers' Index tracking manufacturing sector trends (above 50 denotes expansion).",
+        unit: "Puan", 
+        source: "local" 
+      },
+      { 
+        id: "services_pmi", 
+        titleTr: "Hizmet Sektörü PMI", 
+        titleEn: "Services PMI", 
+        descTr: "Doğrudan hizmet sektöründeki ekonomik aktivite ve sipariş trendini ölçen endeks.", 
+        descEn: "Purchasing Managers' Index tracking business activity and demand in the services sector.",
+        unit: "Puan", 
+        source: "local" 
+      },
+      { 
+        id: "biz_conf", 
+        titleTr: "İş Dünyası Güven Endeksi", 
+        titleEn: "Business Confidence", 
+        descTr: "Şirket yöneticilerinin mevcut üretim ve yatırımlara dair güven düzeyi.", 
+        descEn: "Indicator tracking future performance prospects and sentiment of enterprise executives.",
+        unit: "Puan", 
+        source: "local" 
+      },
+      { 
+        id: "consumer_conf", 
+        titleTr: "Tüketici Güven Endeksi", 
+        titleEn: "Consumer Confidence", 
+        descTr: "Tüketicilerin kendi mali durumları ve genel ekonomik beklentilerine yönelik güven seviyesi.", 
+        descEn: "Survey measuring household optimism regarding financial status and general economic outlook.",
+        unit: "Puan", 
+        source: "local" 
+      },
+      { 
+        id: "retail_sales_mom", 
+        titleTr: "Aylık Perakende Satışlar Değişimi", 
+        titleEn: "Retail Sales MoM Change", 
+        descTr: "Perakende harcamaların dönemsel ortalama değişim eğilimi.", 
+        descEn: "Month-over-month rate of change in retail trade turnover.",
+        unit: "%", 
+        source: "local" 
+      },
+      { 
+        id: "corp_tax", 
+        titleTr: "Kurumlar Vergisi Oranı", 
+        titleEn: "Corporate Tax Rate", 
+        descTr: "Şirketlerin net kârları üzerinden ödemekle yükümlü olduğu yasal vergi oranı.", 
+        descEn: "Statutory headline tax rate levied on corporate net profits.",
+        unit: "%", 
+        source: "local" 
+      },
+      { 
+        id: "income_tax", 
+        titleTr: "Kişisel Gelir Vergisi Oranı", 
+        titleEn: "Personal Income Tax Rate", 
+        descTr: "Bireylerin üst gelir diliminde devlete ödediği yasal gelir vergisi oranı.", 
+        descEn: "Top statutory personal income tax rate levied on individual taxable income.",
+        unit: "%", 
+        source: "local" 
+      }
+    ];
+
     const allYears = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
 
-    // Yerel Veri Tabanı (10 Yıllık Yıllık Seriler)
     const localData = {
       DEU: { interest_rate: [0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 4.5, 3.4, 3.0, 2.5], mfg_pmi: [55.8, 51.5, 43.5, 49.8, 57.3, 47.1, 43.3, 43.0, 44.5, 46.0], services_pmi: [54.0, 53.0, 52.1, 49.5, 54.0, 49.2, 50.7, 51.6, 51.2, 52.0], biz_conf: [102.0, 99.0, 97.5, 92.1, 98.4, 88.6, 85.0, 85.4, 87.0, 89.0], consumer_conf: [-1.0, -3.0, -5.2, -15.4, -8.1, -25.6, -28.3, -21.2, -19.0, -17.5], retail_sales_mom: [0.3, 0.2, 0.2, -0.4, 0.5, -0.6, -0.3, 0.4, 0.2, 0.3], corp_tax: [29.9, 29.9, 29.9, 29.9, 29.9, 29.9, 29.9, 29.9, 29.9, 29.9], income_tax: [45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0, 45.0] },
       USA: { interest_rate: [1.25, 2.25, 1.75, 0.25, 0.25, 4.5, 5.5, 4.75, 4.5, 4.0], mfg_pmi: [57.3, 52.8, 50.2, 53.4, 57.7, 48.4, 47.9, 48.5, 49.5, 51.0], services_pmi: [55.3, 54.4, 52.8, 54.8, 57.6, 44.7, 50.6, 55.3, 53.8, 54.2], biz_conf: [100.5, 101.2, 101.0, 99.0, 103.0, 97.0, 99.0, 100.5, 100.2, 101.0], consumer_conf: [120.0, 128.0, 128.0, 88.0, 115.0, 108.0, 102.0, 108.7, 105.0, 107.0], retail_sales_mom: [0.4, 0.3, 0.3, 0.6, 1.2, -0.4, 0.3, 0.4, 0.3, 0.4], corp_tax: [35.0, 21.0, 21.0, 21.0, 21.0, 21.0, 21.0, 21.0, 21.0, 21.0], income_tax: [39.6, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0] },
@@ -333,21 +486,69 @@
     let selectedYears = 10;
     let chartInstance = null;
 
-    // Göstergeleri Sol Menüye Doldur
-    const listEl = document.getElementById("indicator-list");
-    indicators.forEach((ind, index) => {
-      const item = document.createElement("div");
-      item.className = `indicator-item ${index === 0 ? "active" : ""}`;
-      item.innerText = `${ind.tr}`;
-      item.title = `${ind.tr} (${ind.title})`;
-      item.onclick = () => {
-        document.querySelectorAll(".indicator-item").forEach(el => el.classList.remove("active"));
-        item.classList.add("active");
-        selectedIndicator = ind;
-        fetchMacroData();
-      };
-      listEl.appendChild(item);
-    });
+    function applyLanguage() {
+      const t = translations[currentLang];
+      document.documentElement.lang = currentLang;
+      document.getElementById("txt-brand").innerText = t.brand;
+      document.getElementById("lbl-country").innerText = t.country;
+      document.getElementById("loading").innerText = t.loading;
+      document.getElementById("btn-3y").innerText = t.y3;
+      document.getElementById("btn-5y").innerText = t.y5;
+      document.getElementById("btn-10y").innerText = t.y10;
+      document.getElementById("lang-toggle-btn").innerText = t.toggleText;
+
+      renderCountryOptions();
+      renderIndicatorList();
+      fetchMacroData();
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === "tr" ? "en" : "tr";
+      localStorage.setItem("re_economy_lang", currentLang);
+      applyLanguage();
+    }
+
+    function renderCountryOptions() {
+      const selectEl = document.getElementById("country-select");
+      const currentSelected = selectedCountry;
+      selectEl.innerHTML = "";
+
+      const sortedCountries = [...countriesData].sort((a, b) => {
+        const nameA = currentLang === "tr" ? a.tr : a.en;
+        const nameB = currentLang === "tr" ? b.tr : b.en;
+        return nameA.localeCompare(nameB, currentLang);
+      });
+
+      sortedCountries.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.code;
+        opt.innerText = currentLang === "tr" ? c.tr : c.en;
+        if (c.code === currentSelected) {
+          opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+      });
+    }
+
+    function renderIndicatorList() {
+      const listEl = document.getElementById("indicator-list");
+      listEl.innerHTML = "";
+
+      indicators.forEach((ind) => {
+        const item = document.createElement("div");
+        const title = currentLang === "tr" ? ind.titleTr : ind.titleEn;
+        item.className = `indicator-item ${ind.id === selectedIndicator.id ? "active" : ""}`;
+        item.innerText = title;
+        item.title = title;
+        item.onclick = () => {
+          document.querySelectorAll(".indicator-item").forEach(el => el.classList.remove("active"));
+          item.classList.add("active");
+          selectedIndicator = ind;
+          fetchMacroData();
+        };
+        listEl.appendChild(item);
+      });
+    }
 
     document.getElementById("country-select").addEventListener("change", (e) => {
       selectedCountry = e.target.value;
@@ -367,14 +568,16 @@
       const loadingEl = document.getElementById("loading");
       loadingEl.style.display = "inline";
 
-      document.getElementById("title").innerText = `${selectedIndicator.tr} (${selectedIndicator.title})`;
-      document.getElementById("desc").innerText = selectedIndicator.desc;
+      const title = currentLang === "tr" ? selectedIndicator.titleTr : selectedIndicator.titleEn;
+      const desc = currentLang === "tr" ? selectedIndicator.descTr : selectedIndicator.descEn;
+
+      document.getElementById("title").innerText = title;
+      document.getElementById("desc").innerText = desc;
 
       const currentYear = new Date().getFullYear();
       const startYear = currentYear - selectedYears;
 
       if (selectedIndicator.source === "api") {
-        // Dünya Bankası API üzerinden dinamik veri çekimi
         const url = `https://api.worldbank.org/v2/country/${selectedCountry}/indicator/${selectedIndicator.id}?date=${startYear}:${currentYear}&format=json`;
 
         try {
@@ -394,7 +597,6 @@
           loadingEl.style.display = "none";
         }
       } else {
-        // Yerel veri seti serileri (2017-2026 arası yıllık)
         loadingEl.style.display = "none";
         const cData = localData[selectedCountry] && localData[selectedCountry][selectedIndicator.id];
 
@@ -411,12 +613,14 @@
       const ctx = document.getElementById("chartCanvas").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
+      const title = currentLang === "tr" ? selectedIndicator.titleTr : selectedIndicator.titleEn;
+
       chartInstance = new Chart(ctx, {
         type: "line",
         data: {
           labels: labels,
           datasets: [{
-            label: `${selectedIndicator.tr} (${selectedIndicator.unit})`,
+            label: `${title} (${selectedIndicator.unit})`,
             data: values,
             borderColor: "#38bdf8",
             backgroundColor: "rgba(56, 189, 248, 0.15)",
@@ -441,7 +645,7 @@
       });
     }
 
-    fetchMacroData();
+    applyLanguage();
   </script>
 </body>
 </html>
